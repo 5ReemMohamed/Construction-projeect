@@ -151,12 +151,12 @@ document.addEventListener("DOMContentLoaded", function () {
       message =
         "مرحباً، أريد الاستفسار عن " +
         selectedProduct +
-        " من مؤسسة لؤلؤة العريقة للابواب الاتوماتيكية . أرجو تزويدي بالتفاصيل والأسعار.";
+        " من مؤسسة لؤلؤة دور. أرجو تزويدي بالتفاصيل والأسعار.";
     } else {
       message =
         "مرحباً، أريد الاستفسار عن خدمة " +
         selectedService +
-        " من مؤسسة لؤلؤة العريقة للابواب الاتوماتيكية .";
+        " من مؤسسة لؤلؤة دور.";
     }
 
     const url =
@@ -202,6 +202,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       openWaModal(button);
     });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (
+      event.key === "Escape" &&
+      waModal &&
+      waModal.classList.contains("show")
+    ) {
+      closeWaModal();
+    }
   });
 
   const yearElement = document.getElementById("ldFooterYear");
@@ -282,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : "";
 
         whatsappMessage = [
-          "مرحباً، لدي استفسار جديد من موقع مؤسسة لؤلؤة العريقة للابواب الاتوماتيكية .",
+          "مرحباً، لدي استفسار جديد من موقع مؤسسة لؤلؤة دور.",
           "",
           "الاسم: " + name,
           "رقم الجوال: " + phone,
@@ -335,13 +345,9 @@ document.addEventListener("DOMContentLoaded", function () {
           "noopener,noreferrer"
         );
 
-        if (whatsappWindow) {
-          whatsappWindow.opener = null;
-
-          if (action === "form" && contactForm) {
-            contactForm.reset();
-            whatsappMessage = "";
-          }
+        if (whatsappWindow && action === "form" && contactForm) {
+          contactForm.reset();
+          whatsappMessage = "";
         }
 
         closePicker();
@@ -363,16 +369,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
-  document.addEventListener("keydown", function (event) {
-    if (
-      event.key === "Escape" &&
-      waModal &&
-      waModal.classList.contains("show")
-    ) {
-      closeWaModal();
-    }
-  });
 
   const floatingWhatsApp = document.getElementById("floatingWhatsApp");
   const floatingPhone = document.getElementById("floatingPhone");
@@ -429,5 +425,140 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  const gallery = document.querySelector(".ld-gallery");
+
+  if (gallery) {
+    const filters = gallery.querySelectorAll(".ld-gallery-filter");
+    const items = Array.from(gallery.querySelectorAll(".ld-gallery-item"));
+    const lightbox = document.getElementById("ldGalleryLightbox");
+
+    if (lightbox) {
+      const lightboxImage = document.getElementById("ldGalleryLightboxImage");
+      const closeButton = lightbox.querySelector(".ld-gallery-close");
+      const prevButton = lightbox.querySelector(".ld-gallery-prev");
+      const nextButton = lightbox.querySelector(".ld-gallery-next");
+
+      let visibleItems = [];
+      let currentIndex = 0;
+
+      function updateVisibleItems() {
+        visibleItems = items.filter(function (item) {
+          return !item.classList.contains("is-hidden");
+        });
+      }
+
+      function applyFilter(filter) {
+        items.forEach(function (item) {
+          const matches =
+            filter === "all" || item.dataset.category === filter;
+
+          item.classList.toggle("is-hidden", !matches);
+        });
+
+        filters.forEach(function (button) {
+          const active = button.dataset.filter === filter;
+
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+
+        updateVisibleItems();
+      }
+
+      function showImage(index) {
+        if (!visibleItems.length || !lightboxImage) return;
+
+        currentIndex =
+          (index + visibleItems.length) % visibleItems.length;
+
+        const card =
+          visibleItems[currentIndex].querySelector(".ld-gallery-card");
+
+        if (!card) return;
+
+        const image = card.querySelector("img");
+
+        if (!image) return;
+
+        lightboxImage.src = card.dataset.full || image.src;
+        lightboxImage.alt = image.alt;
+      }
+
+      function openLightbox(item) {
+        updateVisibleItems();
+
+        currentIndex = visibleItems.indexOf(item);
+
+        if (currentIndex < 0) return;
+
+        showImage(currentIndex);
+
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+
+        if (closeButton) closeButton.focus();
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+
+        if (lightboxImage) {
+          lightboxImage.src = "";
+        }
+
+        document.body.style.overflow = "";
+      }
+
+      filters.forEach(function (button) {
+        button.addEventListener("click", function () {
+          applyFilter(button.dataset.filter);
+        });
+      });
+
+      items.forEach(function (item) {
+        const card = item.querySelector(".ld-gallery-card");
+
+        if (card) {
+          card.addEventListener("click", function () {
+            openLightbox(item);
+          });
+        }
+      });
+
+      if (closeButton) {
+        closeButton.addEventListener("click", closeLightbox);
+      }
+
+      if (prevButton) {
+        prevButton.addEventListener("click", function () {
+          showImage(currentIndex - 1);
+        });
+      }
+
+      if (nextButton) {
+        nextButton.addEventListener("click", function () {
+          showImage(currentIndex + 1);
+        });
+      }
+
+      lightbox.addEventListener("click", function (event) {
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (!lightbox.classList.contains("is-open")) return;
+
+        if (event.key === "Escape") closeLightbox();
+        if (event.key === "ArrowRight") showImage(currentIndex + 1);
+        if (event.key === "ArrowLeft") showImage(currentIndex - 1);
+      });
+
+      applyFilter("all");
+    }
+  }
 });
- 
