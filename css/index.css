@@ -5627,8 +5627,7 @@ button {
     font-size: 22px;
 }
 
-.ld-auto-image-label strong,
-.ld-auto-image-label span {
+.ld-auto-image-label strong {
     display: block;
 }
 
