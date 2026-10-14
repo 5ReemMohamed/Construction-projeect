@@ -5614,8 +5614,9 @@ button {
 }
 
 .ld-auto-label-icon {
-    display: grid;
-    place-items: center;
+    display: flex;
+   align-items:center;
+  justify-content:center;
     flex-shrink: 0;
     width: 52px;
     height: 52px;
