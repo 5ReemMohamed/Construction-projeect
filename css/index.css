@@ -5645,7 +5645,7 @@ button {
 .ld-auto-floating-icon {
     position: absolute;
     top: 25px;
-    left: 25px;
+    right: 25px;
     display: grid;
     place-items: center;
     width: 62px;
