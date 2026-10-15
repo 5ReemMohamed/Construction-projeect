@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
       message =
         "مرحباً، أريد الاستفسار عن خدمة " +
         selectedService +
-        " من مؤسسة لؤلؤة العريقة للابواب الاتوماتيكي .";
+        " من مؤسسة لؤلؤة العريقة للابواب الاتوماتيكية .";
     }
 
     const url =
