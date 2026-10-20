@@ -6219,4 +6219,6 @@ button {
 .service-card:hover .service-image img {
     transform: scale(1.08);
 }
-
+.second-img{
+  height: 250px;
+}
